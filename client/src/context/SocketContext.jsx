@@ -3,7 +3,8 @@ import { io } from 'socket.io-client';
 
 const SocketContext = createContext(null);
 
-export const SERVER_URL = import.meta.env.VITE_SERVER_URL || `http://${window.location.hostname}:3001`;
+export const API_URL = import.meta.env.VITE_API_URL;
+export const SERVER_URL = API_URL;
 
 export function SocketProvider({ children }) {
   const socketRef = useRef(null);
@@ -11,7 +12,7 @@ export function SocketProvider({ children }) {
   const [status, setStatus] = useState('disconnected'); // connecting | connected | disconnected
 
   useEffect(() => {
-    const socket = io(SERVER_URL, { autoConnect: false });
+    const socket = io(API_URL, { autoConnect: false });
     socketRef.current = socket;
 
     socket.on('connect', () => { setConnected(true); setStatus('connected'); });

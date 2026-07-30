@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SERVER_URL } from '../context/SocketContext';
+import { API_URL } from '../context/SocketContext';
 import { getUserColor } from '../utils/helpers';
 
 const ADJ = ['Creative','Bold','Swift','Bright','Cosmic','Electric','Vivid'];
@@ -20,7 +20,7 @@ export default function Landing({ onJoin }) {
     if (!name.trim()) { setError('Please enter your name'); return; }
     setLoading(true);
     try {
-      const res = await fetch(`${SERVER_URL}/api/rooms`, { method: 'POST' });
+      const res = await fetch(`${API_URL}/api/rooms`, { method: 'POST' });
       const { roomId } = await res.json();
       onJoin({ roomId, userName: name.trim(), userColor: color });
     } catch {
