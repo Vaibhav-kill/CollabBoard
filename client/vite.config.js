@@ -7,4 +7,8 @@ export default defineConfig({
     host: '0.0.0.0',
     allowedHosts: ['collabboard-client-latest.onrender.com'],
   },
+  preview: {
+    host: '0.0.0.0',
+    allowedHosts: ['collabboard-client-latest.onrender.com'],
+  },
 })
