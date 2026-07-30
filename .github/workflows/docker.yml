@@ -34,3 +34,11 @@ jobs:
       - name: Push Client Image
         run: |
           docker push vai14/collabboard-client:latest
+
+      - name: Deploy Server to Render
+        run: |
+          curl -X POST "${{ secrets.RENDER_SERVER_DEPLOY_HOOK }}"
+
+      - name: Deploy Client to Render
+        run: |
+          curl -X POST "${{ secrets.RENDER_CLIENT_DEPLOY_HOOK }}"
