@@ -1,28 +1,63 @@
-import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
-import { io } from 'socket.io-client';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
+import { io } from "socket.io-client";
 
 const SocketContext = createContext(null);
 
+// Backend URL from Render Environment Variable
 export const API_URL = import.meta.env.VITE_API_URL;
 export const SERVER_URL = API_URL;
 
 export function SocketProvider({ children }) {
   const socketRef = useRef(null);
+
   const [connected, setConnected] = useState(false);
-  const [status, setStatus] = useState('disconnected'); // connecting | connected | disconnected
+  const [status, setStatus] = useState("disconnected");
 
   useEffect(() => {
-    const socket = io(API_URL, { autoConnect: false });
+    console.log("==================================");
+    console.log("VITE_API_URL:", API_URL);
+    console.log("==================================");
+
+    const socket = io(API_URL, {
+      autoConnect: false,
+      transports: ["websocket", "polling"],
+    });
+
     socketRef.current = socket;
 
-    socket.on('connect', () => { setConnected(true); setStatus('connected'); });
-    socket.on('disconnect', () => { setConnected(false); setStatus('disconnected'); });
-    socket.on('connect_error', () => setStatus('disconnected'));
+    socket.on("connect", () => {
+      console.log("✅ Socket Connected");
+      setConnected(true);
+      setStatus("connected");
+    });
 
-    setStatus('connecting');
+    socket.on("disconnect", (reason) => {
+      console.log("❌ Socket Disconnected:", reason);
+      setConnected(false);
+      setStatus("disconnected");
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Socket Connection Error:", err);
+      setConnected(false);
+      setStatus("disconnected");
+    });
+
+    console.log("Connecting to:", API_URL);
+
+    setStatus("connecting");
     socket.connect();
 
-    return () => { socket.disconnect(); };
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const emit = useCallback((event, data) => {
@@ -31,7 +66,10 @@ export function SocketProvider({ children }) {
 
   const on = useCallback((event, handler) => {
     socketRef.current?.on(event, handler);
-    return () => socketRef.current?.off(event, handler);
+
+    return () => {
+      socketRef.current?.off(event, handler);
+    };
   }, []);
 
   const off = useCallback((event, handler) => {
@@ -39,7 +77,16 @@ export function SocketProvider({ children }) {
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, emit, on, off, connected, status }}>
+    <SocketContext.Provider
+      value={{
+        socket: socketRef.current,
+        emit,
+        on,
+        off,
+        connected,
+        status,
+      }}
+    >
       {children}
     </SocketContext.Provider>
   );
