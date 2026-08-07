@@ -25,7 +25,9 @@ jobs:
 
       - name: Build Client Image
         run: |
-          docker build -t vai14/collabboard-client:latest ./client
+          docker build \
+            --build-arg VITE_API_URL=https://collabboard-server-latest.onrender.com \
+            -t vai14/collabboard-client:latest ./client
 
       - name: Push Server Image
         run: |
